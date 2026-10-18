@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>F30 Logboek</title>
+  <meta name="description" content="Onderhoudslogboek voor de BMW F30 3-serie: APK-data via de RDW Open Data API, kilometerprognose en onderhoudsintervallen.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='13' fill='none' stroke='%2366b8ff' stroke-width='3'/><path d='M16 16 L23 9' stroke='%2366b8ff' stroke-width='3' stroke-linecap='round'/></svg>">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top__inner">
+      <div class="brand">
+        <span class="brand__mark" aria-hidden="true"></span>
+        <div>
+          <h1>F30 Logboek</h1>
+          <p class="brand__sub">Onderhoud bijhouden voor de 3-serie, 2012–2019</p>
+        </div>
+      </div>
+      <button class="btn btn--ghost" id="demoBtn" type="button">Voorbeelddata laden</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Kenteken + RDW -->
+    <section class="panel panel--hero" aria-labelledby="h-voertuig">
+      <div class="hero">
+        <form class="plate-form" id="plateForm" autocomplete="off">
+          <label for="plateInput" class="eyebrow" id="h-voertuig">Kenteken</label>
+          <div class="plate">
+            <span class="plate__eu" aria-hidden="true"><span class="plate__stars">★</span>NL</span>
+            <input id="plateInput" name="plate" maxlength="8" placeholder="12-ABC-3" spellcheck="false" aria-describedby="plateHint">
+          </div>
+          <button class="btn btn--primary" type="submit" id="plateBtn">Ophalen bij RDW</button>
+          <p class="hint" id="plateHint">Gegevens komen live uit de RDW Open Data API.</p>
+        </form>
+
+        <div class="vehicle" id="vehicle" aria-live="polite">
+          <div class="empty">
+            <p>Vul je kenteken in voor APK-datum, bouwjaar, vermogen en het oordeel over je tellerstand.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kilometerstand -->
+    <section class="grid-2">
+      <div class="panel" aria-labelledby="h-km">
+        <div class="panel__head">
+          <h2 id="h-km">Kilometerstand</h2>
+          <span class="tag" id="kmTag">schatting</span>
+        </div>
+        <div class="odo" id="odo">
+          <span class="odo__digits" id="odoDigits">——————</span>
+          <span class="odo__unit">km</span>
+        </div>
+        <p class="hint" id="odoHint">Voeg een kilometerstand toe om te beginnen.</p>
+        <svg class="spark" id="spark" viewBox="0 0 300 60" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <form class="inline-form" id="kmForm">
+          <label class="field">
+            <span>Datum</span>
+            <input type="date" name="date" required>
+          </label>
+          <label class="field">
+            <span>Stand (km)</span>
+            <input type="number" name="km" min="0" max="999999" step="1" inputmode="numeric" required placeholder="154000">
+          </label>
+          <button class="btn btn--primary" type="submit">Opslaan</button>
+        </form>
+      </div>
+
+      <div class="panel" aria-labelledby="h-settings">
+        <div class="panel__head">
+          <h2 id="h-settings">Jouw F30</h2>
+        </div>
+        <label class="field">
+          <span>Motor</span>
+          <select id="engineSelect"></select>
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="autoToggle">
+          <span class="switch__track" aria-hidden="true"></span>
+          <span>Automaat (ZF 8HP)</span>
+        </label>
+        <div class="summary" id="summary"></div>
+        <div class="btn-row">
+          <button class="btn btn--ghost" id="exportBtn" type="button">Exporteren</button>
+          <label class="btn btn--ghost">
+            Importeren
+            <input type="file" id="importInput" accept="application/json" hidden>
+          </label>
+          <button class="btn btn--danger-ghost" id="resetBtn" type="button">Wissen</button>
+        </div>
+        <p class="hint">Alles wordt alleen in deze browser opgeslagen.</p>
+      </div>
+    </section>
+
+    <!-- Onderhoudsstatus -->
+    <section class="panel" aria-labelledby="h-status">
+      <div class="panel__head">
+        <h2 id="h-status">Onderhoudsstatus</h2>
+        <div class="legend">
+          <span><i class="dot dot--ok"></i>in orde</span>
+          <span><i class="dot dot--soon"></i>binnenkort</span>
+          <span><i class="dot dot--overdue"></i>verlopen</span>
+        </div>
+      </div>
+      <div class="status-grid" id="statusGrid"></div>
+    </section>
+
+    <!-- Logboek -->
+    <section class="panel" aria-labelledby="h-log">
+      <div class="panel__head">
+        <h2 id="h-log">Beurt toevoegen</h2>
+      </div>
+      <form id="serviceForm" class="service-form">
+        <div class="service-form__row">
+          <label class="field"><span>Datum</span><input type="date" name="date" required></label>
+          <label class="field"><span>Kilometerstand</span><input type="number" name="km" min="0" max="999999" inputmode="numeric" required></label>
+          <label class="field"><span>Kosten (€)</span><input type="number" name="cost" min="0" step="0.01" inputmode="decimal"></label>
+          <label class="field"><span>Garage / notitie</span><input type="text" name="note" maxlength="120" placeholder="Bijv. eigen garage, Castrol Edge 5W-30"></label>
+        </div>
+        <fieldset class="chips" id="itemChips">
+          <legend>Wat is er gedaan?</legend>
+        </fieldset>
+        <button class="btn btn--primary" type="submit">Beurt opslaan</button>
+      </form>
+
+      <div class="panel__head panel__head--sub">
+        <h2>Geschiedenis</h2>
+        <span class="muted" id="costTotal"></span>
+      </div>
+      <div class="table-wrap">
+        <table class="log">
+          <thead>
+            <tr><th>Datum</th><th class="num">Km</th><th>Werkzaamheden</th><th class="num">Kosten</th><th><span class="sr-only">Acties</span></th></tr>
+          </thead>
+          <tbody id="logBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="intervalDialog" class="dialog">
+    <form method="dialog" id="intervalForm">
+      <h3 id="intervalTitle">Interval aanpassen</h3>
+      <label class="field"><span>Elke … km (leeg = niet op km)</span><input type="number" name="km" min="0" step="500"></label>
+      <label class="field"><span>Elke … maanden (leeg = niet op tijd)</span><input type="number" name="months" min="0" step="1"></label>
+      <div class="btn-row">
+        <button class="btn btn--ghost" value="reset" type="submit">Standaard</button>
+        <button class="btn btn--ghost" value="cancel" type="submit">Annuleren</button>
+        <button class="btn btn--primary" value="save" type="submit">Opslaan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <footer class="wrap foot">
+    <p>Voertuigdata: <a href="https://opendata.rdw.nl" rel="noopener">RDW Open Data</a>. Intervallen zijn adviezen; je auto's eigen servicemeldingen (CBS) en je garage gaan voor.</p>
+    <p>Persoonlijk project, niet gelieerd aan BMW AG.</p>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

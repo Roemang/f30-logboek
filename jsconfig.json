@@ -1,0 +1,11 @@
+{
+  // Geeft betere autocomplete voor de ES-modules in js/ (zet checkJs op true voor strenge typecontrole)
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "checkJs": false,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  },
+  "include": ["js/**/*.js"]
+}
