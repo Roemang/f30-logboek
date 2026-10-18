@@ -2,7 +2,7 @@
 
 Een onderhoudslogboek voor de BMW F30 (3-serie, 2012–2019). Vul je kenteken in en de site haalt live je APK-datum, bouwjaar, vermogen en tellerstand-oordeel op bij de RDW. Daarnaast log je je beurten en kilometerstanden, en rekent de site per onderdeel uit wanneer het volgende onderhoud nodig is.
 
-**[Live demo →](https://JOUW-GEBRUIKERSNAAM.github.io/f30-logboek/)** — klik op *Voorbeelddata laden* om het met gevulde data te zien.
+**[Live demo →](https://Roemang.github.io/f30-logboek/)** — klik op *Voorbeelddata laden* om het met gevulde data te zien.
 
 ![Screenshot van het dashboard](docs/screenshot.png)
 
