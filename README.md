@@ -46,13 +46,6 @@ Open de map met **File → Open Folder**. VS Code vraagt dan of je de aanbevolen
 
 Let op: dubbelklikken op `index.html` werkt niet, want ES-modules hebben een server nodig.
 
-## Publiceren op GitHub Pages
-
-1. Maak een nieuwe repository, bijvoorbeeld `f30-logboek`, en upload deze bestanden.
-2. Ga naar **Settings → Pages**, kies bij *Source* **Deploy from a branch**, branch `main`, map `/ (root)`.
-3. Na een minuut staat de site op `https://<gebruikersnaam>.github.io/f30-logboek/`.
-4. Vervang de demo-link bovenaan deze README door je eigen URL.
-
 ## Waarom geen live kilometerstand van BMW?
 
 BMW blokkeert sinds september 2025 apps van derden op de MyBMW-servers. De officiële route is BMW CarData, maar die vraagt OAuth met een eigen server, heeft een limiet van 50 aanvragen per dag en werkt niet bij F30's met een uitgeschakelde 3G-module. Voor een statische site is de RDW daarom de betrouwbaardere bron, met handmatige kilometerstanden als aanvulling.
